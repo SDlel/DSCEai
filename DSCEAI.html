@@ -1,0 +1,2488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Canteen AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header-content h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header-content h1 i {
+            color: #667eea;
+            margin-right: 15px;
+        }
+
+        .header-content p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .search-section {
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            display: flex;
+            background: #f7fafc;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-box button {
+            padding: 15px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .search-box button:hover {
+            background: #5a67d8;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+        }
+
+        .filter-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .quick-actions h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border: none;
+            background: #f7fafc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .action-btn:hover i {
+            color: white;
+        }
+
+        /* Calendar Styles */
+        .calendar-section {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .calendar-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .calendar-section h3 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        #currentMonth {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-header {
+            background: #667eea;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+
+        .calendar-day {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-day:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        .calendar-day.other-month {
+            color: #a0aec0;
+            background: #f7fafc;
+        }
+
+        .calendar-day.today {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-event {
+            background: #e6fffa;
+            border-color: #38b2ac;
+            color: #234e52;
+            font-weight: 500;
+        }
+
+        .calendar-day.has-event:hover {
+            background: #b2f5ea;
+        }
+
+        /* Academic Schedule Styles */
+        .academic-schedule {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .academic-schedule h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .academic-schedule h3 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .events-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .event-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-item.assignment {
+            border-left-color: #f6ad55;
+        }
+
+        .event-item.exam {
+            border-left-color: #fc8181;
+        }
+
+        .event-item.important {
+            border-left-color: #e53e3e;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .event-date {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .event-time {
+            color: #667eea;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .event-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .event-type.assignment {
+            background: #f6ad55;
+        }
+
+        .event-type.exam {
+            background: #fc8181;
+        }
+
+        .event-type.important {
+            background: #e53e3e;
+        }
+
+        /* Campus Map Styles - Updated */
+        .campus-map-section {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .campus-map-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .campus-map-section h3 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .map-container {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .campus-map {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+            min-width: 400px;
+            max-width: 100%;
+        }
+
+        .building {
+            position: absolute;
+            border: 2px solid #4a5568;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .building:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Building Tooltip */
+        .building-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .building-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .building:hover .building-tooltip {
+            opacity: 1;
+            transform: translateY(-15px);
+        }
+
+        /* Tooltip positioning variants */
+        .building-tooltip.top {
+            bottom: 100%;
+            top: auto;
+            transform: translateY(10px);
+        }
+
+        .building-tooltip.top::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .building:hover .building-tooltip.top {
+            transform: translateY(15px);
+        }
+
+        .building-tooltip.left {
+            right: 100%;
+            left: auto;
+            transform: translateX(10px);
+        }
+
+        .building-tooltip.left::after {
+            left: auto;
+            right: -5px;
+            top: 50%;
+            margin-top: -5px;
+            margin-left: 0;
+            border-top-color: transparent;
+            border-left-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .building:hover .building-tooltip.left {
+            transform: translateX(15px);
+        }
+
+        .building-tooltip.right {
+            left: 100%;
+            right: auto;
+            transform: translateX(-10px);
+        }
+
+        .building-tooltip.right::after {
+            left: -5px;
+            right: auto;
+            top: 50%;
+            margin-top: -5px;
+            margin-left: 0;
+            border-top-color: transparent;
+            border-right-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .building:hover .building-tooltip.right {
+            transform: translateX(-15px);
+        }
+
+        .building.academic {
+            background: #667eea;
+        }
+
+        .building.hostel {
+            background: #f6ad55;
+        }
+
+        .building.facility {
+            background: #48bb78;
+        }
+
+        .building.hospital {
+            background: #fc8181;
+        }
+
+        .building.auditorium {
+            background: #9f7aea;
+        }
+
+        .building.library {
+            background: #38b2ac;
+        }
+
+        .building.canteen {
+            background: #ed8936;
+        }
+
+        .building.temple {
+            background: #e53e3e;
+        }
+
+        .building.sports {
+            background: #48bb78;
+        }
+
+        .building-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid #4a5568;
+        }
+
+        .legend-color.academic {
+            background: #667eea;
+        }
+
+        .legend-color.hostel {
+            background: #f6ad55;
+        }
+
+        .legend-color.facility {
+            background: #48bb78;
+        }
+
+        .legend-color.hospital {
+            background: #fc8181;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #f0f0f0;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .building-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-section h3 i {
+            color: #667eea;
+        }
+
+        .info-section p {
+            margin: 8px 0;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .info-section strong {
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .info-section ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin: 5px 0;
+            color: #718096;
+        }
+
+        /* Map Paths and Roads */
+        .campus-path {
+            position: absolute;
+            background: #f4d03f;
+            border-radius: 2px;
+        }
+
+        .campus-path.horizontal {
+            height: 4px;
+        }
+
+        .campus-path.vertical {
+            width: 4px;
+        }
+
+        .campus-path.diagonal {
+            height: 4px;
+            transform-origin: left center;
+        }
+
+        /* Green Spaces */
+        .green-space {
+            position: absolute;
+            background: #68d391;
+            border-radius: 8px;
+            opacity: 0.7;
+        }
+
+        .green-space::before {
+            content: '🌳';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+        }
+
+        /* Water Features */
+        .water-feature {
+            position: absolute;
+            background: #4299e1;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .water-feature::before {
+            content: '💧';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+        }
+
+        /* Parking Areas */
+        .parking-area {
+            position: absolute;
+            background: #a0aec0;
+            border: 2px dashed #4a5568;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .parking-area::before {
+            content: '🚗';
+            margin-right: 5px;
+        }
+
+        /* Sports Facilities */
+        .sports-facility {
+            position: absolute;
+            background: #48bb78;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .sports-facility::before {
+            content: '⚽';
+            margin-right: 5px;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #718096;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Chat Section */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            max-height: calc(100vh - 300px);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .bot-message .message-content {
+            background: #f7fafc;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-content i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .user-message .message-content i {
+            color: white;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .food-card h3 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .food-card .category-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .food-card .price {
+            color: #48bb78;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .ingredients {
+            margin: 10px 0;
+            color: #718096;
+        }
+
+        .ingredients strong {
+            color: #4a5568;
+        }
+
+        .dietary-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .dietary-tag {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .reviews {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .review {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 8px 0;
+        }
+
+        .review-rating {
+            color: #f6ad55;
+            margin-bottom: 5px;
+        }
+
+        .review-text {
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 20px 25px;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            margin-left: 15px;
+            padding: 15px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input button:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .typing-dots span {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #718096;
+            margin: 0 1px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Map Tab Styles */
+        .map-tab-content {
+            height: 100%;
+            position: relative;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .map-controls button {
+            margin: 2px;
+            padding: 8px 12px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .map-controls button:hover {
+            background: #5a67d8;
+        }
+
+        #leafletMap {
+            width: 100%;
+            height: calc(100vh - 300px);
+            min-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .content-section {
+                order: 1;
+                height: 60vh;
+            }
+            
+            .header-content h1 {
+                font-size: 2rem;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+
+            #leafletMap {
+                height: 400px;
+                min-height: 300px;
+            }
+
+            .campus-map {
+                height: 350px;
+                min-width: 300px;
+            }
+            
+            .building {
+                font-size: 0.6rem;
+                min-width: 25px;
+                min-height: 18px;
+            }
+            
+            .building-label {
+                font-size: 0.5rem;
+            }
+            
+            .building-tooltip {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .map-legend {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .campus-path {
+                opacity: 0.7;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .campus-map {
+                height: 300px;
+                min-width: 280px;
+            }
+            
+            .building {
+                font-size: 0.5rem;
+                min-width: 20px;
+                min-height: 15px;
+            }
+            
+            .building-label {
+                font-size: 0.4rem;
+            }
+            
+            .building-tooltip {
+                font-size: 0.6rem;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-utensils"></i> College Canteen AI Assistant</h1>
+                <p>Your smart guide to canteen food, ingredients, reviews, and campus navigation</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="search-section">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search food items...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Filter by Category</h3>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-category="all">All Items</button>
+                        <button class="filter-btn" data-category="veg">Vegetarian</button>
+                        <button class="filter-btn" data-category="non-veg">Non-Vegetarian</button>
+                    </div>
+                </div>
+
+                <div class="calendar-section">
+                    <h3><i class="fas fa-calendar-alt"></i> Academic Calendar</h3>
+                    <div class="calendar-nav">
+                        <button id="prevMonth" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+                        <span id="currentMonth"></span>
+                        <button id="nextMonth" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div id="calendar" class="calendar"></div>
+                </div>
+
+                <div class="academic-schedule">
+                    <h3><i class="fas fa-graduation-cap"></i> Upcoming Events</h3>
+                    <div id="upcomingEvents" class="events-list"></div>
+                </div>
+
+                <div class="campus-map-section">
+                    <h3><i class="fas fa-map"></i> Campus Map</h3>
+                    <div class="map-container">
+                        <div id="campusMap" class="campus-map"></div>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color academic"></div>
+                                <span>Academic Buildings</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color hostel"></div>
+                                <span>Hostels</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color facility"></div>
+                                <span>Facilities</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color hospital"></div>
+                                <span>Hospital</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <button class="action-btn" onclick="askQuestion('What are the healthiest options?')">
+                        <i class="fas fa-heart"></i> Healthiest Options
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Show me vegetarian dishes')">
+                        <i class="fas fa-leaf"></i> Vegetarian Dishes
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('What are the most popular items?')">
+                        <i class="fas fa-star"></i> Popular Items
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Show me budget-friendly options')">
+                        <i class="fas fa-dollar-sign"></i> Budget Options
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Show me upcoming assignments')">
+                        <i class="fas fa-tasks"></i> Assignments
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Show me exam schedule')">
+                        <i class="fas fa-clipboard-list"></i> Exam Schedule
+                    </button>
+                    <button class="action-btn" onclick="switchTab('campusMap')">
+                        <i class="fas fa-map"></i> Campus Map
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="tab-navigation">
+                    <button class="tab-button active" data-tab="chat">
+                        <i class="fas fa-comments"></i> Chat Assistant
+                    </button>
+                    <button class="tab-button" data-tab="campusMap">
+                        <i class="fas fa-map-marked-alt"></i> Campus Map
+                    </button>
+                </div>
+
+                <div id="chat" class="tab-content active">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message bot-message">
+                                <div class="message-content">
+                                    <i class="fas fa-robot"></i>
+                                    <p>Hello! I'm your AI assistant for the college canteen. I can help you find information about food items, ingredients, dietary information, and reviews. What would you like to know?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="userInput" placeholder="Ask me about any food item...">
+                            <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="campusMap" class="tab-content">
+                    <div class="map-tab-content">
+                        <div class="map-controls">
+                            <button onclick="resetMapView()">
+                                <i class="fas fa-home"></i> Reset View
+                            </button>
+                            <button onclick="toggleSatelliteView()">
+                                <i class="fas fa-satellite"></i> Satellite
+                            </button>
+                        </div>
+                        <div id="leafletMap"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Building Information Modal -->
+    <div id="buildingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="buildingTitle"></h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="building-info">
+                    <div class="info-section">
+                        <h3><i class="fas fa-building"></i> Building Details</h3>
+                        <p><strong>Building Number:</strong> <span id="buildingNumber"></span></p>
+                        <p><strong>Department:</strong> <span id="buildingDepartment"></span></p>
+                        <p><strong>Type:</strong> <span id="buildingType"></span></p>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-info-circle"></i> Description</h3>
+                        <p id="buildingDescription"></p>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                        <p id="buildingLocation"></p>
+                    </div>
+                    <div class="info-section" id="facilitiesSection" style="display: none;">
+                        <h3><i class="fas fa-cogs"></i> Facilities</h3>
+                        <ul id="buildingFacilities"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Academic Schedule Database
+        const academicSchedule = {
+            assignments: [
+                {
+                    id: 1,
+                    title: "Assignment Week",
+                    subject: "Various",
+                    dueDate: "2023-12-12",
+                    startDate: "2023-12-08",
+                    priority: "medium",
+                    description: "General assignment work period for various subjects"
+                },
+                {
+                    id: 2,
+                    title: "Lab Internal Assessment & Course End Survey",
+                    subject: "Various",
+                    dueDate: "2024-01-02",
+                    startDate: "2023-12-29",
+                    priority: "high",
+                    description: "Period for Lab Internal Assessments and Course End Surveys"
+                }
+            ],
+            exams: [
+                {
+                    id: 1,
+                    title: "Internal Assessment Test 2 - Day 1",
+                    subject: "Various",
+                    examDate: "2023-12-01",
+                    examTime: "Full Day",
+                    venue: "College",
+                    priority: "high",
+                    description: "Internal Assessment Test 2"
+                },
+                {
+                    id: 2,
+                    title: "Internal Assessment Test 2 - Day 2",
+                    subject: "Various",
+                    examDate: "2023-12-05",
+                    examTime: "Full Day",
+                    venue: "College",
+                    priority: "high",
+                    description: "Internal Assessment Test 2"
+                }
+            ],
+            events: [
+                {
+                    id: 1,
+                    title: "Students Induction Program",
+                    type: "program",
+                    eventDate: "2023-09-08",
+                    eventTime: "All Day",
+                    venue: "College",
+                    priority: "high",
+                    description: "Students Induction Program"
+                }
+            ]
+        };
+
+        // Campus Buildings Database with accurate coordinates
+        const campusBuildings = {
+            1: {
+                name: "Heritage Block",
+                department: "English & Foreign Languages",
+                type: "Academic",
+                category: "academic",
+                description: "The Heritage Block houses the English & Foreign Languages department. This historic building serves as the main administrative and academic center for language studies.",
+                location: "Central campus, near the main auditorium",
+                facilities: ["Classrooms", "Faculty offices", "Language labs", "Conference rooms"],
+                coordinates: [15.3647, 75.1240] // Approximate coordinates for Vijayapura
+            },
+            2: {
+                name: "Library",
+                department: "Central Library",
+                type: "Facility",
+                category: "library",
+                description: "The main campus library with extensive collection of books, journals, and digital resources. Open 24/7 during exam periods.",
+                location: "Central campus, adjacent to Heritage Block",
+                facilities: ["Reading halls", "Digital resources", "Group study rooms", "Computer lab", "Photocopy center"],
+                coordinates: [15.3649, 75.1242]
+            },
+            3: {
+                name: "Automobile Engineering",
+                department: "Automobile Engineering",
+                type: "Academic",
+                category: "academic",
+                description: "Department of Automobile Engineering offering undergraduate and postgraduate programs in automotive technology.",
+                location: "South campus, near parking area P2",
+                facilities: ["Automotive labs", "Engine testing facility", "Design studio", "Workshop"],
+                coordinates: [15.3640, 75.1235]
+            },
+            4: {
+                name: "Civil Engineering & Mathematics",
+                department: "Civil Engineering, Mathematics",
+                type: "Academic",
+                category: "academic",
+                description: "Houses both Civil Engineering and Mathematics departments. Features state-of-the-art laboratories and research facilities.",
+                location: "South campus, near parking area P2",
+                facilities: ["Structural engineering lab", "Surveying equipment", "Math lab", "Research center"],
+                coordinates: [15.3641, 75.1237]
+            },
+            5: {
+                name: "Mechanical Engineering",
+                department: "Mechanical Engineering",
+                type: "Academic",
+                category: "academic",
+                description: "Department of Mechanical Engineering with comprehensive programs in mechanical systems, manufacturing, and design.",
+                location: "South campus, near parking area P2",
+                facilities: ["Machine shop", "CAD/CAM lab", "Thermodynamics lab", "Design studio"],
+                coordinates: [15.3642, 75.1239]
+            },
+            6: {
+                name: "Mechanical Lab Complex",
+                department: "Mechanical Engineering",
+                type: "Laboratory",
+                category: "facility",
+                description: "Extensive laboratory complex for mechanical engineering students with advanced equipment and testing facilities.",
+                location: "South campus, adjacent to Mechanical Engineering building",
+                facilities: ["Advanced machining center", "Materials testing lab", "Fluid mechanics lab", "Heat transfer lab"],
+                coordinates: [15.3643, 75.1241]
+            },
+            7: {
+                name: "Electrical Engineering & Biological Science",
+                department: "Electrical Engineering, Biological Science",
+                type: "Academic",
+                category: "academic",
+                description: "Multi-department building housing Electrical Engineering and Biological Science departments with specialized laboratories.",
+                location: "South campus, near central green area",
+                facilities: ["Power systems lab", "Electronics lab", "Biology lab", "Research facilities"],
+                coordinates: [15.3644, 75.1243]
+            },
+            8: {
+                name: "Industrial Engineering & Management",
+                department: "Industrial Engineering & Management",
+                type: "Academic",
+                category: "academic",
+                description: "Department focusing on industrial systems, operations research, and management studies with modern facilities.",
+                location: "South campus, near central facilities",
+                facilities: ["Operations research lab", "Management simulation center", "Case study rooms", "Research center"],
+                coordinates: [15.3645, 75.1245]
+            },
+            9: {
+                name: "Chemical Engineering & Chemistry",
+                department: "Chemical Engineering, Chemistry",
+                type: "Academic",
+                category: "academic",
+                description: "Department of Chemical Engineering and Chemistry with advanced laboratories for research and practical training.",
+                location: "South campus, near central green area",
+                facilities: ["Chemical process lab", "Analytical chemistry lab", "Pilot plant", "Research labs"],
+                coordinates: [15.3646, 75.1247]
+            },
+            10: {
+                name: "Biotechnology & Innovation Center",
+                department: "Biotechnology, Innovation & Leadership",
+                type: "Academic",
+                category: "academic",
+                description: "Modern facility housing Biotechnology department and Innovation & Leadership center with cutting-edge research facilities.",
+                location: "South campus, near central green area",
+                facilities: ["Biotech lab", "Innovation hub", "Incubation center", "Research facilities"],
+                coordinates: [15.3647, 75.1249]
+            },
+            11: {
+                name: "NRI Hostel",
+                department: "Hostel",
+                type: "Residential",
+                category: "hostel",
+                description: "Specialized hostel for NRI (Non-Resident Indian) students with modern amenities and comfortable living spaces.",
+                location: "South campus, near sports facilities",
+                facilities: ["AC rooms", "Common room", "Study hall", "Recreation area", "Dining facility"],
+                coordinates: [15.3648, 75.1251]
+            },
+            12: {
+                name: "Evening College & Nursing",
+                department: "Evening College, Nursing",
+                type: "Academic",
+                category: "academic",
+                description: "Multi-purpose building housing Evening College programs and Nursing department with specialized training facilities.",
+                location: "South campus, near sports ground",
+                facilities: ["Evening classrooms", "Nursing lab", "Simulation center", "Clinical training facility"],
+                coordinates: [15.3639, 75.1233]
+            },
+            13: {
+                name: "Arts, Science & Commerce",
+                department: "Arts, Science & Commerce, Fine Arts, Journalism, MCA (VTU)",
+                type: "Academic",
+                category: "academic",
+                description: "Large academic complex housing multiple departments including Arts, Science, Commerce, Fine Arts, and Journalism programs.",
+                location: "West campus, near main entrance",
+                facilities: ["Multiple classrooms", "Art studios", "Media lab", "Computer labs", "Conference halls"],
+                coordinates: [15.3650, 75.1230]
+            },
+            14: {
+                name: "Architecture",
+                department: "Architecture",
+                type: "Academic",
+                category: "academic",
+                description: "Department of Architecture with design studios, workshops, and exhibition spaces for architectural education.",
+                location: "West campus, near main entrance",
+                facilities: ["Design studios", "Model making workshop", "Exhibition gallery", "Computer lab", "Material library"],
+                coordinates: [15.3651, 75.1232]
+            },
+            15: {
+                name: "PGDM (DSBS)",
+                department: "Post Graduate Diploma in Management",
+                type: "Academic",
+                category: "academic",
+                description: "Business school offering Post Graduate Diploma in Management with modern classrooms and case study facilities.",
+                location: "West campus, near main entrance",
+                facilities: ["Case study rooms", "Business simulation lab", "Conference facilities", "Library"],
+                coordinates: [15.3652, 75.1234]
+            },
+            16: {
+                name: "International School",
+                department: "International School",
+                type: "Academic",
+                category: "academic",
+                description: "International School offering global education programs with multicultural learning environment.",
+                location: "West campus, near main entrance",
+                facilities: ["International classrooms", "Cultural center", "Language labs", "Global studies center"],
+                coordinates: [15.3653, 75.1236]
+            },
+            17: {
+                name: "Computer Science & Electronics",
+                department: "Computer Science & Engineering, Electronics & Communication, MBA (BL), MCA (BU), BCA (BU)",
+                type: "Academic",
+                category: "academic",
+                description: "Major academic complex housing Computer Science, Electronics, and Business programs with state-of-the-art facilities.",
+                location: "West campus, near main entrance",
+                facilities: ["Computer labs", "Electronics lab", "Business center", "Research labs", "Conference rooms"],
+                coordinates: [15.3654, 75.1238]
+            },
+            18: {
+                name: "Ladies Hostel - 1",
+                department: "Hostel",
+                type: "Residential",
+                category: "hostel",
+                description: "First ladies hostel providing comfortable accommodation for female students with modern amenities.",
+                location: "Central campus, near green area",
+                facilities: ["AC rooms", "Common room", "Study hall", "Recreation area", "Dining facility"],
+                coordinates: [15.3648, 75.1238]
+            },
+            19: {
+                name: "Ladies Hostel - 2 (Sharada Working Women)",
+                department: "Hostel",
+                type: "Residential",
+                category: "hostel",
+                description: "Specialized hostel for working women students with flexible accommodation and study facilities.",
+                location: "Central campus, near green area",
+                facilities: ["Flexible accommodation", "Study rooms", "Common facilities", "Security services"],
+                coordinates: [15.3649, 75.1236]
+            },
+            20: {
+                name: "Ladies Hostel - 3 (Nelson Mandela)",
+                department: "Hostel",
+                type: "Residential",
+                category: "hostel",
+                description: "Modern ladies hostel named after Nelson Mandela, providing quality accommodation for female students.",
+                location: "Central campus, near green area",
+                facilities: ["Modern rooms", "Common areas", "Study facilities", "Recreation center"],
+                coordinates: [15.3650, 75.1234]
+            },
+            21: {
+                name: "Boys Hostel (Sardar Patel Hostel)",
+                department: "Hostel",
+                type: "Residential",
+                category: "hostel",
+                description: "Main boys hostel named after Sardar Patel, providing accommodation for male students with various amenities.",
+                location: "North campus, near hospital complex",
+                facilities: ["Dormitory rooms", "Common room", "Study hall", "Recreation area", "Dining facility"],
+                coordinates: [15.3655, 75.1242]
+            },
+            22: {
+                name: "Electronics & Instrumentation, Medical Electronics",
+                department: "Electronics & Instrumentation, Medical Electronics",
+                type: "Academic",
+                category: "academic",
+                description: "Department specializing in Electronics, Instrumentation, and Medical Electronics with advanced laboratory facilities.",
+                location: "North campus, near hospital complex",
+                facilities: ["Electronics lab", "Instrumentation lab", "Medical electronics lab", "Research facilities"],
+                coordinates: [15.3656, 75.1240]
+            },
+            23: {
+                name: "Boys Hostel (Sardar Patel Hostel) - 2",
+                department: "Hostel",
+                type: "Residential",
+                category: "hostel",
+                description: "Additional boys hostel facility providing accommodation for male students with modern amenities.",
+                location: "North campus, near hospital complex",
+                facilities: ["Modern rooms", "Common facilities", "Study areas", "Recreation center"],
+                coordinates: [15.3657, 75.1244]
+            },
+            24: {
+                name: "Diploma College",
+                department: "Diploma Programs",
+                type: "Academic",
+                category: "academic",
+                description: "Diploma college offering various diploma programs in engineering and technology fields.",
+                location: "North campus, near hospital complex",
+                facilities: ["Diploma classrooms", "Workshop facilities", "Laboratories", "Training center"],
+                coordinates: [15.3658, 75.1246]
+            },
+            25: {
+                name: "Dental College & DSU",
+                department: "Dental College, DSU",
+                type: "Academic",
+                category: "academic",
+                description: "Dental College and DSU (Dental Sciences Unit) with clinical facilities and advanced dental equipment.",
+                location: "North campus, near hospital complex",
+                facilities: ["Dental clinics", "Laboratory", "X-ray facilities", "Treatment rooms", "Research center"],
+                coordinates: [15.3659, 75.1248]
+            },
+            26: {
+                name: "Conveno & Facilities",
+                department: "Conveno, Facilities",
+                type: "Administrative",
+                category: "facility",
+                description: "Administrative building housing Conveno office and various campus facilities and services.",
+                location: "Central campus, near Heritage Block",
+                facilities: ["Administrative offices", "Student services", "Facilities management", "Support services"],
+                coordinates: [15.3646, 75.1238]
+            },
+            27: {
+                name: "Canteen",
+                department: "Food Services",
+                type: "Facility",
+                category: "canteen",
+                description: "Main campus canteen serving a variety of vegetarian and non-vegetarian food options for students and staff.",
+                location: "Central campus, near green area",
+                facilities: ["Food court", "Seating area", "Kitchen facilities", "Payment counter"],
+                coordinates: [15.3645, 75.1236]
+            },
+            "AUDITORIUM": {
+                name: "Dr. Prem Chandra Sagar Auditorium",
+                department: "Performing Arts",
+                type: "Facility",
+                category: "auditorium",
+                description: "Main auditorium named after Dr. Prem Chandra Sagar, hosting various events, conferences, and cultural programs.",
+                location: "Central campus, near Heritage Block",
+                facilities: ["Main stage", "Seating for 500+", "Sound system", "Lighting", "Green room"],
+                coordinates: [15.3647, 75.1241]
+            },
+            "TEMPLE": {
+                name: "Campus Temple",
+                department: "Spiritual Center",
+                type: "Facility",
+                category: "temple",
+                description: "Campus temple providing a peaceful space for spiritual activities and religious observances.",
+                location: "Central campus, near green area",
+                facilities: ["Prayer hall", "Meditation area", "Religious services", "Quiet space"],
+                coordinates: [15.3648, 75.1234]
+            },
+            "FOOTBALL": {
+                name: "Football Field",
+                department: "Sports",
+                type: "Sports Facility",
+                category: "sports",
+                description: "Main football field with proper markings and facilities for football matches and training.",
+                location: "South campus, near hostels",
+                facilities: ["Football pitch", "Goal posts", "Spectator area", "Changing rooms"],
+                coordinates: [15.3638, 75.1230]
+            },
+            "PLAYGROUND": {
+                name: "Play Ground",
+                department: "Sports",
+                type: "Sports Facility",
+                category: "sports",
+                description: "Multi-purpose playground for various sports activities and recreational games.",
+                location: "South campus, near football field",
+                facilities: ["Multi-sport court", "Equipment storage", "Seating area", "Lighting"],
+                coordinates: [15.3637, 75.1228]
+            },
+            "HOSPITAL": {
+                name: "Sagar Hospital",
+                department: "Medical Services",
+                type: "Medical Facility",
+                category: "hospital",
+                description: "Campus hospital providing medical care and emergency services to students and staff.",
+                location: "North campus, main medical complex",
+                facilities: ["Emergency services", "General medicine", "Specialists", "Pharmacy", "Diagnostic center"],
+                coordinates: [15.3660, 75.1250]
+            }
+        };
+
+        // Food Database
+        const foodDatabase = {
+            veg: [
+                {
+                    id: 1,
+                    name: "Paneer Butter Masala",
+                    price: "₹120",
+                    ingredients: ["Paneer", "Tomatoes", "Onions", "Cream", "Butter", "Garam Masala", "Red Chili Powder", "Turmeric", "Ginger-Garlic Paste"],
+                    dietaryInfo: ["Vegetarian", "High Protein", "Contains Dairy"],
+                    description: "Rich and creamy paneer curry with aromatic spices",
+                    reviews: [
+                        { rating: 5, text: "Absolutely delicious! The paneer is so soft and the gravy is perfect.", author: "Sarah" },
+                        { rating: 4, text: "Great taste, but could be less oily.", author: "Rahul" },
+                        { rating: 5, text: "My go-to dish! Never disappoints.", author: "Priya" }
+                    ],
+                    nutrition: { calories: 350, protein: "18g", carbs: "12g", fat: "28g" }
+                },
+                {
+                    id: 2,
+                    name: "Dal Makhani",
+                    price: "₹80",
+                    ingredients: ["Black Lentils", "Red Kidney Beans", "Tomatoes", "Onions", "Cream", "Butter", "Garam Masala", "Cumin", "Ginger-Garlic Paste"],
+                    dietaryInfo: ["Vegetarian", "High Protein", "High Fiber", "Contains Dairy"],
+                    description: "Creamy black lentil curry slow-cooked to perfection",
+                    reviews: [
+                        { rating: 5, text: "Best dal makhani in the canteen! So rich and flavorful.", author: "Amit" },
+                        { rating: 4, text: "Perfect with rice or roti.", author: "Kavya" },
+                        { rating: 5, text: "Comfort food at its best!", author: "Rohit" }
+                    ],
+                    nutrition: { calories: 280, protein: "15g", carbs: "35g", fat: "12g" }
+                }
+            ],
+            "non-veg": [
+                {
+                    id: 7,
+                    name: "Chicken Biryani",
+                    price: "₹150",
+                    ingredients: ["Basmati Rice", "Chicken", "Onions", "Yogurt", "Garam Masala", "Saffron", "Mint", "Coriander", "Ginger-Garlic Paste"],
+                    dietaryInfo: ["Non-Vegetarian", "High Protein", "Contains Dairy", "Gluten-Free"],
+                    description: "Aromatic basmati rice with tender chicken and exotic spices",
+                    reviews: [
+                        { rating: 5, text: "Absolutely divine! The chicken is so tender and the rice is perfectly cooked.", author: "Vikash" },
+                        { rating: 4, text: "Great biryani! Good portion size.", author: "Shruti" },
+                        { rating: 5, text: "Worth the price! Highly recommended.", author: "Karan" }
+                    ],
+                    nutrition: { calories: 520, protein: "35g", carbs: "65g", fat: "18g" }
+                }
+            ]
+        };
+
+        // Global variables
+        let currentFilter = 'all';
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let leafletMap = null;
+        let isSatelliteView = false;
+
+        // Tab functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activate corresponding tab button
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            // Initialize map when campus map tab is selected
+            if (tabName === 'campusMap' && !leafletMap) {
+                setTimeout(initializeLeafletMap, 100);
+            }
+        }
+
+        // Initialize Leaflet map
+        function initializeLeafletMap() {
+            if (leafletMap) {
+                leafletMap.remove();
+            }
+            
+            // Center coordinates for Vijayapura area
+            const centerLat = 15.3647;
+            const centerLng = 75.1240;
+            
+            leafletMap = L.map('leafletMap').setView([centerLat, centerLng], 16);
+
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(leafletMap);
+
+            // Add building markers
+            Object.keys(campusBuildings).forEach(buildingId => {
+                const building = campusBuildings[buildingId];
+                if (building.coordinates) {
+                    const [lat, lng] = building.coordinates;
+                    
+                    // Choose icon based on building category
+                    const iconHtml = getBuildingIcon(building.category);
+                    
+                    const customIcon = L.divIcon({
+                        html: `<div style="
+                            background: ${getBuildingColor(building.category)};
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border: 2px solid white;
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                            color: white;
+                            font-weight: bold;
+                            font-size: 14px;
+                        ">${iconHtml}</div>`,
+                        className: 'custom-building-marker',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+
+                    const marker = L.marker([lat, lng], { icon: customIcon })
+                        .addTo(leafletMap);
+
+                    // Create popup content
+                    const popupContent = `
+                        <div style="max-width: 250px;">
+                            <h3 style="margin: 0 0 10px 0; color: #4a5568; font-size: 1.1rem;">${building.name}</h3>
+                            <p style="margin: 5px 0; color: #718096;"><strong>Department:</strong> ${building.department}</p>
+                            <p style="margin: 5px 0; color: #718096;"><strong>Type:</strong> ${building.type}</p>
+                            <p style="margin: 10px 0; color: #4a5568; font-size: 0.9rem;">${building.description}</p>
+                            <button onclick="showBuildingDetails('${buildingId}')" 
+                                style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-top: 8px;">
+                                View Details
+                            </button>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                }
+            });
+        }
+
+        // Get building icon based on category
+        function getBuildingIcon(category) {
+            switch(category) {
+                case 'academic': return '🏫';
+                case 'hostel': return '🏠';
+                case 'library': return '📚';
+                case 'canteen': return '🍽️';
+                case 'hospital': return '🏥';
+                case 'auditorium': return '🎭';
+                case 'temple': return '🛕';
+                case 'sports': return '⚽';
+                case 'facility': return '🏢';
+                default: return '🏛️';
+            }
+        }
+
+        // Get building color based on category
+        function getBuildingColor(category) {
+            switch(category) {
+                case 'academic': return '#667eea';
+                case 'hostel': return '#f6ad55';
+                case 'library': return '#38b2ac';
+                case 'canteen': return '#ed8936';
+                case 'hospital': return '#fc8181';
+                case 'auditorium': return '#9f7aea';
+                case 'temple': return '#e53e3e';
+                case 'sports': return '#48bb78';
+                case 'facility': return '#48bb78';
+                default: return '#667eea';
+            }
+        }
+
+        // Show building details
+        function showBuildingDetails(buildingId) {
+            const building = campusBuildings[buildingId];
+            if (!building) return;
+
+            const modal = document.getElementById('buildingModal');
+            document.getElementById('buildingTitle').textContent = building.name;
+            document.getElementById('buildingNumber').textContent = buildingId;
+            document.getElementById('buildingDepartment').textContent = building.department;
+            document.getElementById('buildingType').textContent = building.type;
+            document.getElementById('buildingDescription').textContent = building.description;
+            document.getElementById('buildingLocation').textContent = building.location;
+
+            const facilitiesSection = document.getElementById('facilitiesSection');
+            const facilitiesList = document.getElementById('buildingFacilities');
+            
+            if (building.facilities && building.facilities.length > 0) {
+                facilitiesList.innerHTML = building.facilities.map(facility => `<li>${facility}</li>`).join('');
+                facilitiesSection.style.display = 'block';
+            } else {
+                facilitiesSection.style.display = 'none';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        // Reset map view
+        function resetMapView() {
+            if (leafletMap) {
+                leafletMap.setView([15.3647, 75.1240], 16);
+            }
+        }
+
+        // Toggle satellite view
+        function toggleSatelliteView() {
+            if (!leafletMap) return;
+            
+            // Remove existing tile layers
+            leafletMap.eachLayer(function(layer) {
+                if (layer instanceof L.TileLayer) {
+                    leafletMap.removeLayer(layer);
+                }
+            });
+
+            if (!isSatelliteView) {
+                // Switch to satellite view
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles © Esri'
+                }).addTo(leafletMap);
+                isSatelliteView = true;
+            } else {
+                // Switch back to street view
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(leafletMap);
+                isSatelliteView = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            const currentMonthSpan = document.getElementById('currentMonth');
+            const calendar = document.getElementById('calendar');
+            const upcomingEvents = document.getElementById('upcomingEvents');
+
+            // Tab button event listeners
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+
+            // Send message function
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage(message, 'user');
+                    userInput.value = '';
+                    processMessage(message);
+                }
+            }
+
+            // Event listeners
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            searchBtn.addEventListener('click', function() {
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm) {
+                    searchFoodItems(searchTerm);
+                }
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = searchInput.value.trim();
+                    if (searchTerm) {
+                        searchFoodItems(searchTerm);
+                    }
+                }
+            });
+
+            // Filter buttons
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.category;
+                    showFilteredItems();
+                });
+            });
+
+            // Calendar navigation
+            prevMonthBtn.addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+            });
+
+            // Initialize calendar and events
+            renderCalendar();
+            renderUpcomingEvents();
+            
+            // Initialize campus map
+            initializeCampusMap();
+
+            // Modal close functionality
+            const modal = document.getElementById('buildingModal');
+            const closeBtn = document.getElementsByClassName('close')[0];
+
+            closeBtn.onclick = function() {
+                modal.style.display = 'none';
+            };
+
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+
+            // Add message to chat
+            function addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                if (sender === 'bot') {
+                    messageContent.innerHTML = `<i class="fas fa-robot"></i><p>${content}</p>`;
+                } else {
+                    messageContent.innerHTML = `<i class="fas fa-user"></i><p>${content}</p>`;
+                }
+                
+                messageDiv.appendChild(messageContent);
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Process user message
+            function processMessage(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                showTypingIndicator();
+                
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    let response = '';
+                    
+                    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                        response = "Hello! I'm here to help you with information about our canteen food and campus. What would you like to know?";
+                    } else if (lowerMessage.includes('menu') || lowerMessage.includes('food')) {
+                        response = showAllItems();
+                    } else if (lowerMessage.includes('vegetarian') || lowerMessage.includes('veg')) {
+                        response = showVegetarianItems();
+                    } else if (lowerMessage.includes('non-veg') || lowerMessage.includes('non vegetarian')) {
+                        response = showNonVegetarianItems();
+                    } else if (lowerMessage.includes('healthy') || lowerMessage.includes('healthiest')) {
+                        response = showHealthyOptions();
+                    } else if (lowerMessage.includes('popular') || lowerMessage.includes('best')) {
+                        response = showPopularItems();
+                    } else if (lowerMessage.includes('budget') || lowerMessage.includes('cheap')) {
+                        response = showBudgetOptions();
+                    } else if (lowerMessage.includes('map') || lowerMessage.includes('campus') || lowerMessage.includes('building')) {
+                        response = "I've switched to the Campus Map tab for you! You can also find buildings using the interactive map with detailed information about each department and facility.";
+                        setTimeout(() => switchTab('campusMap'), 500);
+                    } else if (lowerMessage.includes('ingredients')) {
+                        response = "I can tell you about ingredients for any specific dish. Just ask me about a particular food item!";
+                    } else {
+                        const foundItem = searchForFoodItem(message);
+                        if (foundItem) {
+                            response = createFoodCard(foundItem);
+                        } else {
+                            response = "I'm not sure about that. You can ask me about our menu, specific food items, ingredients, reviews, dietary information, or use the Campus Map tab to find buildings. What would you like to know?";
+                        }
+                    }
+                    
+                    addMessage(response, 'bot');
+                }, 1000);
+            }
+
+            // Show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot-message typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `
+                    <div class="message-content">
+                        <i class="fas fa-robot"></i>
+                        <span>AI is typing</span>
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Hide typing indicator
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // Search for food item
+            function searchForFoodItem(query) {
+                const allItems = [...foodDatabase.veg, ...foodDatabase["non-veg"]];
+                return allItems.find(item => 
+                    item.name.toLowerCase().includes(query.toLowerCase()) ||
+                    item.ingredients.some(ingredient => 
+                        ingredient.toLowerCase().includes(query.toLowerCase())
+                    )
+                );
+            }
+
+            // Create food card HTML
+            function createFoodCard(item) {
+                const avgRating = (item.reviews.reduce((sum, review) => sum + review.rating, 0) / item.reviews.length).toFixed(1);
+                const stars = '★'.repeat(Math.round(avgRating));
+                
+                return `
+                    <div class="food-card">
+                        <h3>${item.name} <span class="category-badge">${item.dietaryInfo[0]}</span></h3>
+                        <div class="price">${item.price}</div>
+                        <p><strong>Description:</strong> ${item.description}</p>
+                        <div class="ingredients">
+                            <strong>Ingredients:</strong> ${item.ingredients.join(', ')}
+                        </div>
+                        <div class="dietary-info">
+                            ${item.dietaryInfo.map(info => `<span class="dietary-tag">${info}</span>`).join('')}
+                        </div>
+                        <div class="nutrition">
+                            <strong>Nutrition (per serving):</strong> ${item.nutrition.calories} calories, ${item.nutrition.protein} protein, ${item.nutrition.carbs} carbs, ${item.nutrition.fat} fat
+                        </div>
+                        <div class="reviews">
+                            <strong>Reviews (${avgRating}/5 ${stars}):</strong>
+                            ${item.reviews.map(review => `
+                                <div class="review">
+                                    <div class="review-rating">${'★'.repeat(review.rating)}</div>
+                                    <div class="review-text">"${review.text}" - ${review.author}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Show all items
+            function showAllItems() {
+                const allItems = [...foodDatabase.veg, ...foodDatabase["non-veg"]];
+                let response = "Here's our complete menu:<br><br>";
+                allItems.forEach(item => {
+                    response += createFoodCard(item);
+                });
+                return response;
+            }
+
+            // Show vegetarian items
+            function showVegetarianItems() {
+                let response = "Here are our vegetarian options:<br><br>";
+                foodDatabase.veg.forEach(item => {
+                    response += createFoodCard(item);
+                });
+                return response;
+            }
+
+            // Show non-vegetarian items
+            function showNonVegetarianItems() {
+                let response = "Here are our non-vegetarian options:<br><br>";
+                foodDatabase["non-veg"].forEach(item => {
+                    response += createFoodCard(item);
+                });
+                return response;
+            }
+
+            // Show healthy options
+            function showHealthyOptions() {
+                const healthyItems = [...foodDatabase.veg, ...foodDatabase["non-veg"]]
+                    .filter(item => 
+                        item.dietaryInfo.some(info => 
+                            info.includes('High Protein') || 
+                            info.includes('High Fiber') || 
+                            info.includes('Low Calorie')
+                        )
+                    );
+                
+                let response = "Here are our healthiest options:<br><br>";
+                healthyItems.forEach(item => {
+                    response += createFoodCard(item);
+                });
+                return response;
+            }
+
+            // Show popular items
+            function showPopularItems() {
+                const allItems = [...foodDatabase.veg, ...foodDatabase["non-veg"]];
+                const popularItems = allItems
+                    .map(item => ({
+                        ...item,
+                        avgRating: item.reviews.reduce((sum, review) => sum + review.rating, 0) / item.reviews.length
+                    }))
+                    .sort((a, b) => b.avgRating - a.avgRating)
+                    .slice(0, 3);
+                
+                let response = "Here are our most popular items:<br><br>";
+                popularItems.forEach(item => {
+                    response += createFoodCard(item);
+                });
+                return response;
+            }
+
+            // Show budget options
+            function showBudgetOptions() {
+                const allItems = [...foodDatabase.veg, ...foodDatabase["non-veg"]];
+                const budgetItems = allItems.filter(item => {
+                    const price = parseInt(item.price.replace('₹', ''));
+                    return price <= 100;
+                });
+                
+                let response = "Here are our budget-friendly options (₹100 and below):<br><br>";
+                budgetItems.forEach(item => {
+                    response += createFoodCard(item);
+                });
+                return response;
+            }
+
+            // Search food items
+            function searchFoodItems(query) {
+                const allItems = [...foodDatabase.veg, ...foodDatabase["non-veg"]];
+                const results = allItems.filter(item => 
+                    item.name.toLowerCase().includes(query.toLowerCase()) ||
+                    item.ingredients.some(ingredient => 
+                        ingredient.toLowerCase().includes(query.toLowerCase())
+                    ) ||
+                    item.dietaryInfo.some(info => 
+                        info.toLowerCase().includes(query.toLowerCase())
+                    )
+                );
+                
+                if (results.length > 0) {
+                    let response = `Found ${results.length} item(s) matching "${query}":<br><br>`;
+                    results.forEach(item => {
+                        response += createFoodCard(item);
+                    });
+                    addMessage(response, 'bot');
+                } else {
+                    addMessage(`No items found matching "${query}". Try searching for a different term or ask me about our menu!`, 'bot');
+                }
+            }
+
+            // Show filtered items
+            function showFilteredItems() {
+                let items = [];
+                if (currentFilter === 'all') {
+                    items = [...foodDatabase.veg, ...foodDatabase["non-veg"]];
+                } else if (currentFilter === 'veg') {
+                    items = foodDatabase.veg;
+                } else if (currentFilter === 'non-veg') {
+                    items = foodDatabase["non-veg"];
+                }
+                
+                let response = `Here are our ${currentFilter === 'all' ? 'all' : currentFilter} items:<br><br>`;
+                items.forEach(item => {
+                    response += createFoodCard(item);
+                });
+                addMessage(response, 'bot');
+            }
+
+            // Calendar functions
+            function renderCalendar() {
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"];
+                
+                currentMonthSpan.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+                
+                const firstDay = new Date(currentYear, currentMonth, 1);
+                const lastDay = new Date(currentYear, currentMonth + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startingDay = firstDay.getDay();
+                
+                calendar.innerHTML = '';
+                
+                // Add day headers
+                const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                dayHeaders.forEach(day => {
+                    const header = document.createElement('div');
+                    header.className = 'calendar-header';
+                    header.textContent = day;
+                    calendar.appendChild(header);
+                });
+                
+                // Add empty cells for days before month starts
+                for (let i = 0; i < startingDay; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.className = 'calendar-day other-month';
+                    calendar.appendChild(emptyDay);
+                }
+                
+                // Add days of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-day';
+                    dayElement.textContent = day;
+                    
+                    const today = new Date();
+                    const isToday = currentYear === today.getFullYear() && 
+                                   currentMonth === today.getMonth() && 
+                                   day === today.getDate();
+                    
+                    if (isToday) {
+                        dayElement.classList.add('today');
+                    }
+                    
+                    calendar.appendChild(dayElement);
+                }
+            }
+
+            function renderUpcomingEvents() {
+                const allEvents = [...academicSchedule.assignments, ...academicSchedule.exams, ...academicSchedule.events];
+                const today = new Date();
+                const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+                
+                const upcoming = allEvents.filter(event => {
+                    const eventDate = new Date(event.dueDate || event.examDate || event.eventDate);
+                    return eventDate >= today && eventDate <= nextWeek;
+                }).slice(0, 5);
+                
+                upcomingEvents.innerHTML = '';
+                upcoming.forEach(event => {
+                    const eventElement = document.createElement('div');
+                    eventElement.className = 'event-item';
+                    eventElement.innerHTML = `
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-date">${formatDate(event.dueDate || event.examDate || event.eventDate)}</div>
+                        <div class="event-time">${event.dueTime || event.examTime || event.eventTime || 'All Day'}</div>
+                    `;
+                    upcomingEvents.appendChild(eventElement);
+                });
+            }
+
+            function formatDate(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+
+            // Initialize campus map (original)
+            function initializeCampusMap() {
+                createCampusLayout(document.getElementById('campusMap'));
+            }
+        });
+
+        // Original campus layout function for sidebar map
+        function createCampusLayout(map) {
+            if (!map) return;
+
+            map.innerHTML = '';
+
+            const buildings = [
+                { id: 1, x: 160, y: 110, width: 55, height: 35, label: "1" },
+                { id: 2, x: 175, y: 150, width: 50, height: 30, label: "2" },
+                { id: 27, x: 145, y: 75, width: 30, height: 18, label: "C", category: "canteen" }
+            ];
+
+            buildings.forEach(building => {
+                const buildingElement = document.createElement('div');
+                buildingElement.className = `building ${building.category || 'academic'}`;
+                buildingElement.style.left = `${building.x}px`;
+                buildingElement.style.top = `${building.y}px`;
+                buildingElement.style.width = `${building.width}px`;
+                buildingElement.style.height = `${building.height}px`;
+                
+                const label = document.createElement('div');
+                label.className = 'building-label';
+                label.textContent = building.label;
+                buildingElement.appendChild(label);
+                
+                const tooltip = document.createElement('div');
+                tooltip.className = 'building-tooltip top';
+                tooltip.textContent = campusBuildings[building.id]?.name || `Building ${building.id}`;
+                buildingElement.appendChild(tooltip);
+                
+                buildingElement.addEventListener('click', () => showBuildingDetails(building.id));
+                map.appendChild(buildingElement);
+            });
+        }
+
+        // Global function for quick actions
+        function askQuestion(question) {
+            const userInput = document.getElementById('userInput');
+            userInput.value = question;
+            userInput.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }));
+        }
+    </script>
+</body>
+</html>
