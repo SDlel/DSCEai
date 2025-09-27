@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSI - Student Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <div class="profile-section">
+            <div class="profile-pic">
+                <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=VA" alt="Profile">
+            </div>
+            <div class="student-info">
+                <h1>DSCE</h1>
+                <h2>VENKAT ABHINAV TEEGAVARAPU</h2>
+                <p>9483774020 | vat.dsce@gmail.com</p>
+                <div class="divider"></div>
+                <div class="academic-details">
+                    <div class="detail-item">
+                        <span class="label">Branch</span>
+                        <span class="value">CG</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Sem</span>
+                        <span class="value">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Division</span>
+                        <span class="value">CG</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Roll No.</span>
+                        <span class="value">55</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Batch</span>
+                        <span class="value">A1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="features-grid">
+            <div class="feature-card" onclick="openFeature('academic-calendar')">
+                <div class="feature-icon academic-calendar">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <span class="feature-label">Academic Calendar</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('timetable')">
+                <div class="feature-icon timetable">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="feature-label">Time Table</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('attendance')">
+                <div class="feature-icon attendance">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span class="feature-label">Attendance</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('lms')">
+                <div class="feature-icon lms">
+                    <i class="fas fa-book"></i>
+                </div>
+                <span class="feature-label">LMS</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('announcement')">
+                <div class="feature-icon announcement">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <span class="feature-label">Announcement</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('transport')">
+                <div class="feature-icon transport">
+                    <i class="fas fa-bus"></i>
+                </div>
+                <span class="feature-label">Transport</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('internal-assessment')">
+                <div class="feature-icon internal-assessment">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <span class="feature-label">Internal Assessment</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('exam-schedule')">
+                <div class="feature-icon exam-schedule">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <span class="feature-label">Exam Schedule</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('results')">
+                <div class="feature-icon results">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="feature-label">Results</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('fees')">
+                <div class="feature-icon fees">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <span class="feature-label">Fees</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('feedback')">
+                <div class="feature-icon feedback">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <span class="feature-label">Feedback</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('notifications')">
+                <div class="feature-icon notifications">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <span class="feature-label">Notifications</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('circular')">
+                <div class="feature-icon circular">
+                    <i class="fas fa-file-circle-check"></i>
+                </div>
+                <span class="feature-label">Circular</span>
+            </div>
+            
+            <div class="feature-card" onclick="openFeature('lms-test-result')">
+                <div class="feature-icon lms-test-result">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <span class="feature-label">LMS Test Result</span>
+            </div>
+            
+            <!-- New Events Button -->
+            <div class="feature-card" onclick="openFeature('events')">
+                <div class="feature-icon events">
+                    <i class="fas fa-calendar-star"></i>
+                </div>
+                <span class="feature-label">Events</span>
+            </div>
+            
+            <!-- AI Chatbot Button -->
+            <div class="feature-card" onclick="openFeature('ai-chatbot')">
+                <div class="feature-icon ai-chatbot">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <span class="feature-label">AI Assistant</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <span>App Version : 5.94(94)</span>
+    </div>
+
+    <!-- Modals -->
+    <!-- Timetable Modal -->
+    <div id="timetableModal" class="modal">
+        <div class="modal-content timetable-modal">
+            <div class="modal-header">
+                <h2>📅 Time Table - I Semester B.E 2025-26</h2>
+                <span class="close" onclick="closeModal('timetableModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="timetable-info">
+                    <p><strong>Dayananda Sagar College of Engineering</strong></p>
+                    <p>Autonomous Institution Affiliated to VTU, Belgaum</p>
+                    <p>Shavige Malleshwara Hills, Kumaraswamy Layout, Bangalore - 560078</p>
+                    <p><strong>Section: CG | Classroom: 306</strong></p>
+                </div>
+                
+                <div class="timetable-grid">
+                    <div class="time-header">Time</div>
+                    <div class="day-header">Monday</div>
+                    <div class="day-header">Tuesday</div>
+                    <div class="day-header">Wednesday</div>
+                    <div class="day-header">Thursday</div>
+                    <div class="day-header">Friday</div>
+                    <div class="day-header">Saturday</div>
+                    
+                    <div class="time-slot">9:00 - 10:00</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">MATHS</div>
+                    <div class="class-slot">ESC [IEC]</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">IDT LAB</div>
+                    
+                    <div class="time-slot">10:00 - 11:00</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">PHYSICS</div>
+                    <div class="class-slot">PSC LAB [CS Dept, B19]</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">IDT LAB</div>
+                    
+                    <div class="time-slot">11:00 - 12:00</div>
+                    <div class="class-slot">PHY. LAB [PhysicsDept, B19]</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">PROGRAMMING IN C</div>
+                    <div class="class-slot">PHYSICS</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">IDT LAB</div>
+                    
+                    <div class="time-slot">12:00 - 1:00</div>
+                    <div class="class-slot">PHY. LAB [PhysicsDept, B19]</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">MATHS</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">IDT LAB</div>
+                    
+                    <div class="time-slot">1:00 - 2:00</div>
+                    <div class="class-slot break">LUNCH BREAK</div>
+                    <div class="class-slot break">LUNCH BREAK</div>
+                    <div class="class-slot break">LUNCH BREAK</div>
+                    <div class="class-slot">PROGRAMMING IN C</div>
+                    <div class="class-slot break">LUNCH BREAK</div>
+                    <div class="class-slot">IDT LAB</div>
+                    
+                    <div class="time-slot">2:00 - 3:00</div>
+                    <div class="class-slot">CAED Laboratory [IV Floor, B13]</div>
+                    <div class="class-slot">ESC [IEC]</div>
+                    <div class="class-slot">SOFT SKILL</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">PHYSICS</div>
+                    <div class="class-slot empty"></div>
+                    
+                    <div class="time-slot">3:00 - 4:00</div>
+                    <div class="class-slot">CAED Laboratory [IV Floor, B13]</div>
+                    <div class="class-slot">MATHS</div>
+                    <div class="class-slot">CAED T</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">PROGRAMMING IN C</div>
+                    <div class="class-slot empty"></div>
+                    
+                    <div class="time-slot">4:00 - 5:00</div>
+                    <div class="class-slot">MATHS LAB</div>
+                    <div class="class-slot">KANNADA</div>
+                    <div class="class-slot">CAED T</div>
+                    <div class="class-slot empty"></div>
+                    <div class="class-slot">ESC [IEC]</div>
+                    <div class="class-slot empty"></div>
+                </div>
+                
+                <div class="subjects-section">
+                    <h3>📚 Subject Details</h3>
+                    <div class="subjects-grid">
+                        <div class="subject-card">
+                            <div class="subject-code">1BMATS101</div>
+                            <div class="subject-name">APPLIED MATHEMATICS I – CSE STREAM</div>
+                            <div class="subject-instructor">Dr. Amruthalakshmi M. R</div>
+                            <div class="subject-dept">MATHS | Credits: 4</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BPHYS102</div>
+                            <div class="subject-name">APPLIED PHYSICS - CSE STREAM</div>
+                            <div class="subject-instructor">Dr. Digvijay N Singh</div>
+                            <div class="subject-dept">PHYSICS | Credits: 4</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BCEDS103</div>
+                            <div class="subject-name">COMPUTER-AIDED ENGINEERING DRAWING</div>
+                            <div class="subject-instructor">Prof. Madhavamurthy, Prof. Govindaraju</div>
+                            <div class="subject-dept">ME | Credits: 3</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BESC104C</div>
+                            <div class="subject-name">INTRODUCTION TO ELECTRONICS & COMMUNICATION ENGINEERING</div>
+                            <div class="subject-instructor">Dr. Naveen K N</div>
+                            <div class="subject-dept">EC | Credits: 3</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BEIT105</div>
+                            <div class="subject-name">PROGRAMMING IN C [PSC]</div>
+                            <div class="subject-instructor">CS Department</div>
+                            <div class="subject-dept">CS | Credits: 3</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BSKS106</div>
+                            <div class="subject-name">SOFT SKILLS</div>
+                            <div class="subject-instructor">Prof. Meena Jagdesh</div>
+                            <div class="subject-dept">HUMANITIES | Credits: PP</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BPOPL107</div>
+                            <div class="subject-name">C PROGRAMMING LAB [PSC LAB]</div>
+                            <div class="subject-instructor">CS Department</div>
+                            <div class="subject-dept">CS | Credits: 1</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BIDTL158</div>
+                            <div class="subject-name">Innovation and Design Thinking Lab [IDT LAB]</div>
+                            <div class="subject-instructor">CG Department</div>
+                            <div class="subject-dept">CG | Credits: 1</div>
+                        </div>
+                        
+                        <div class="subject-card">
+                            <div class="subject-code">1BKSK109/1BKBK109</div>
+                            <div class="subject-name">SAMSKRUTIKA KANNADA/BALAKE KANNADA</div>
+                            <div class="subject-instructor">Prof. Kavita/Dr. Jayanth M</div>
+                            <div class="subject-dept">HUMANITIES | Credits: 1</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Upcoming Events</h2>
+                <span class="close" onclick="closeModal('eventsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="events-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">15</span>
+                            <span class="month">Dec</span>
+                        </div>
+                        <div class="event-details">
+                            <h3>Annual Technical Symposium</h3>
+                            <p>Computer Science Department</p>
+                            <p>Time: 9:00 AM - 5:00 PM</p>
+                            <p>Venue: Main Auditorium</p>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">20</span>
+                            <span class="month">Dec</span>
+                        </div>
+                        <div class="event-details">
+                            <h3>Cultural Fest 2024</h3>
+                            <p>All Departments</p>
+                            <p>Time: 10:00 AM - 8:00 PM</p>
+                            <p>Venue: College Ground</p>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">25</span>
+                            <span class="month">Dec</span>
+                        </div>
+                        <div class="event-details">
+                            <h3>Holiday - Christmas</h3>
+                            <p>College Holiday</p>
+                            <p>Time: All Day</p>
+                            <p>Venue: -</p>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">28</span>
+                            <span class="month">Dec</span>
+                        </div>
+                        <div class="event-details">
+                            <h3>Project Exhibition</h3>
+                            <p>Final Year Students</p>
+                            <p>Time: 2:00 PM - 6:00 PM</p>
+                            <p>Venue: Engineering Block</p>
+                        </div>
+                    </div>
+                    
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">02</span>
+                            <span class="month">Jan</span>
+                        </div>
+                        <div class="event-details">
+                            <h3>New Year Celebration</h3>
+                            <p>Student Council</p>
+                            <p>Time: 6:00 PM - 12:00 AM</p>
+                            <p>Venue: College Ground</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chatbot Modal -->
+    <div id="aiChatbotModal" class="modal">
+        <div class="modal-content chatbot-modal">
+            <div class="modal-header">
+                <h2>AI Assistant</h2>
+                <span class="close" onclick="closeModal('aiChatbotModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                Hello! I'm your AI assistant for the DSI student portal. I can help you with information about:
+                                <ul>
+                                    <li>Academic Calendar and Time Table</li>
+                                    <li>Attendance and Results</li>
+                                    <li>Exam Schedules and Internal Assessments</li>
+                                    <li>Fees and Notifications</li>
+                                    <li>Events and Announcements</li>
+                                    <li>LMS and Transport information</li>
+                                </ul>
+                                How can I help you today?
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="Ask me anything about the portal..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSI AI Chatbot Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .test-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .test-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+        .test-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .test-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .quick-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .quick-btn {
+            padding: 8px 12px;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        .quick-btn:hover {
+            background: #357ABD;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🤖 DSI AI Chatbot Test</h1>
+            <p>Test the enhanced AI assistant with various questions</p>
+        </div>
+        <div class="chat-container">
+            <div class="quick-questions">
+                <button class="quick-btn" onclick="askQuestion('Hello')">👋 Say Hello</button>
+                <button class="quick-btn" onclick="askQuestion('What is my schedule for Monday?')">📅 Monday Schedule</button>
+                <button class="quick-btn" onclick="askQuestion('Tell me about my subjects')">📚 My Subjects</button>
+                <button class="quick-btn" onclick="askQuestion('What classes do I have in the morning?')">🌅 Morning Classes</button>
+                <button class="quick-btn" onclick="askQuestion('What is my timetable?')">⏰ Complete Timetable</button>
+                <button class="quick-btn" onclick="askQuestion('Tell me about programming in c')">💻 Programming in C</button>
+                <button class="quick-btn" onclick="askQuestion('What is attendance?')">📊 Ask about Attendance</button>
+                <button class="quick-btn" onclick="askQuestion('Tell me about events')">🎉 Ask about Events</button>
+                <button class="quick-btn" onclick="askQuestion('How to check results?')">📈 Ask about Results</button>
+                <button class="quick-btn" onclick="askQuestion('What is LMS?')">📚 Ask about LMS</button>
+                <button class="quick-btn" onclick="askQuestion('Help me with fees')">💰 Ask about Fees</button>
+                <button class="quick-btn" onclick="askQuestion('Contact information')">📞 Ask for Contact</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <strong>🤖 Welcome to the Enhanced DSI AI Assistant Test!</strong><br><br>
+                        I'm a sophisticated AI chatbot that can help you with detailed information about your timetable, subjects, and all portal features. Try asking me questions or use the quick question buttons above!<br><br>
+                        <strong>Try asking timetable questions:</strong><br>
+                        • "What's my schedule for Monday?"<br>
+                        • "Tell me about my subjects"<br>
+                        • "What classes do I have in the morning?"<br>
+                        • "Tell me about programming in c"<br><br>
+                        <strong>Or general portal questions:</strong><br>
+                        • "How do I check my attendance?"<br>
+                        • "Tell me about upcoming events"<br>
+                        • "What is LMS and how do I use it?"<br>
+                        • "How can I pay my fees?"<br><br>
+                        I can understand natural language and provide detailed, context-aware responses!
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Ask me anything about the DSI portal..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Quick question function
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+    </script>
+</body>
+</html>
