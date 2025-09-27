@@ -1,0 +1,3 @@
+This is a hackathon project for our team "Hackstreet Boys" in which we are trying to do AI digitization of our college campus by implementing AI chatbots which help studeants figure out events academics and other
+schedules as well as deadlines on assignments. We are also working on a canteen food review + info system in which people can know the rating of each food item(out of 5 stars) and also get dietary and ingrediant 
+information. Being a fresher we did struggle finding out various locations so we will be planning on implementing an interactive 2d map which shows all building names along with routes to them.
